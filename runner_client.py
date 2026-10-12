@@ -31,6 +31,7 @@ def fetch(target):
     print('Authorized private build inputs restored')
 
 def phase(name,target):
+    if name=='cleanup' and not ROOT.exists():return
     logs=ROOT/'private-logs';logs.mkdir(exist_ok=True)
     log=logs/(name+'.txt')
     env={**os.environ,'BUILD_INPUT_ROOT':str(ROOT.resolve())}
@@ -49,5 +50,7 @@ if __name__=='__main__':
         if args.operation=='fetch':fetch(args.target)
         elif args.name in ('prepare','build','validate','stage','cleanup'):phase(args.name,args.target)
         else:raise ValueError('Unknown build phase')
-    except Exception:
-        print('Build operation failed; private details were not printed',file=sys.stderr);raise SystemExit(1)
+    except Exception as failure:
+        code=getattr(failure,'code','none')
+        field=str(failure.args[0]) if isinstance(failure,KeyError) and failure.args and failure.args[0] in ('ACTIONS_ID_TOKEN_REQUEST_URL','ACTIONS_ID_TOKEN_REQUEST_TOKEN','value') else 'none'
+        print('Build operation failed: type='+type(failure).__name__+' status='+str(code)+' missingField='+field+'; private payloads were not printed',file=sys.stderr);raise SystemExit(1)
