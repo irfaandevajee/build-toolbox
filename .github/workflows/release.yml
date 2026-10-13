@@ -1,5 +1,8 @@
 name: Owner Release Build
 on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/release.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -42,7 +45,7 @@ jobs:
       - if: always()
         run: python runner_client.py phase android --name cleanup
   windows:
-    if: github.actor == github.repository_owner
+    if: false
     runs-on: windows-2025
     timeout-minutes: 45
     env:
