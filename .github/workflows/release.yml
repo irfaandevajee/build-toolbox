@@ -1,4 +1,4 @@
-name: Owner Recruiter MCP 0.5.14 Build
+name: Owner Recruiter MCP 0.5.14 Validation
 on:
   push:
     branches: [main]
