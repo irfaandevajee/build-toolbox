@@ -1,4 +1,4 @@
-name: Owner Release Build
+name: Owner Recruiter History Fix Build
 on:
   push:
     branches: [main]
