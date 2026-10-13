@@ -1,4 +1,4 @@
-name: Owner Recruiter MCP 0.5.14 Validation
+name: Owner Recruiter MCP 0.5.14 Release Checks
 on:
   push:
     branches: [main]
