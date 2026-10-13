@@ -1,5 +1,8 @@
 name: Owner Release Build
 on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/release.yml]
   workflow_dispatch:
     inputs:
       target:
@@ -16,7 +19,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   android:
-    if: github.actor == github.repository_owner && inputs.target == 'android'
+    if: github.actor == github.repository_owner && (github.event_name == 'push' || inputs.target == 'android')
     runs-on: ubuntu-24.04
     timeout-minutes: 50
     env:
@@ -49,7 +52,7 @@ jobs:
       - if: always()
         run: python runner_client.py phase android --name cleanup
   windows:
-    if: github.actor == github.repository_owner && inputs.target == 'windows'
+    if: github.actor == github.repository_owner && github.event_name == 'workflow_dispatch' && inputs.target == 'windows'
     runs-on: windows-2025
     timeout-minutes: 45
     env:
