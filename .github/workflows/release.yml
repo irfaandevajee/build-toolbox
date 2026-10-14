@@ -1,4 +1,4 @@
-# Native mobile 246 app source: 62a4865a216d529d3ecb54568dc54d28d6b8e2b6
+# Native mobile 246 app source: 792b89105e7261273ce9a38866d01f5322143b4b
 name: Owner Release Build
 on:
   push:
