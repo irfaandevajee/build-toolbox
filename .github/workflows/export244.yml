@@ -5,6 +5,7 @@ on:
     paths: ['.github/workflows/export244.yml']
 permissions:
   contents: read
+  id-token: write
 concurrency:
   group: export-tmc-build244
   cancel-in-progress: true
@@ -16,7 +17,8 @@ jobs:
       - name: Download exact staged APK
         run: |
           set -euo pipefail
-          curl -fsS --max-time 120 'https://nyuqtsumryimknijffoc.supabase.co/functions/v1/review-inbox?release=0e41d9dc-a36b-4b03-bb26-fa04ed0cd3bb' -o TMC-Talent-Intelligence-build244.apk
+          TOKEN="$(curl -fsS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=owner-release-build" | python -c 'import json,sys;print(json.load(sys.stdin)["value"])')"
+          curl -fsS --max-time 120 -H "Authorization: Bearer $TOKEN" 'https://nyuqtsumryimknijffoc.supabase.co/functions/v1/tmc-owner-build-244?kind=release&target=android' -o TMC-Talent-Intelligence-build244.apk
           test "$(stat -c%s TMC-Talent-Intelligence-build244.apk)" = '9522753'
           echo '29f780a2cb42e94dc3ba65b01158b7bae5a6554f253d06d7b303a0e65f421d4c  TMC-Talent-Intelligence-build244.apk' | sha256sum -c -
       - name: Package ZIP
