@@ -1,0 +1,32 @@
+name: Export TMC Build 244 ZIP
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/export244.yml']
+permissions:
+  contents: read
+concurrency:
+  group: export-tmc-build244
+  cancel-in-progress: true
+jobs:
+  export:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Download exact staged APK
+        run: |
+          set -euo pipefail
+          curl -fsS --max-time 120 'https://nyuqtsumryimknijffoc.supabase.co/functions/v1/review-inbox?release=0e41d9dc-a36b-4b03-bb26-fa04ed0cd3bb' -o TMC-Talent-Intelligence-build244.apk
+          test "$(stat -c%s TMC-Talent-Intelligence-build244.apk)" = '9522753'
+          echo '29f780a2cb42e94dc3ba65b01158b7bae5a6554f253d06d7b303a0e65f421d4c  TMC-Talent-Intelligence-build244.apk' | sha256sum -c -
+      - name: Package ZIP
+        run: |
+          printf '%s  %s\n' '29f780a2cb42e94dc3ba65b01158b7bae5a6554f253d06d7b303a0e65f421d4c' 'TMC-Talent-Intelligence-build244.apk' > SHA256.txt
+          zip -0 -q TMC-Talent-Intelligence-build244.zip TMC-Talent-Intelligence-build244.apk SHA256.txt
+      - name: Upload ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: TMC-Talent-Intelligence-build244
+          path: TMC-Talent-Intelligence-build244.zip
+          retention-days: 1
+          if-no-files-found: error
