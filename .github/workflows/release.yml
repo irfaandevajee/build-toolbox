@@ -1,5 +1,9 @@
+# Native mobile 245 app source: c29577d970c15317967b29776c9fd03e56e9f008
 name: Owner Release Build
 on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/release.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -13,13 +17,19 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 50
     env:
-      BUILD_BROKER_URL: ${{ vars.BUILD_BROKER_URL }}
+      BUILD_BROKER_URL: https://nyuqtsumryimknijffoc.supabase.co/functions/v1/tmc-owner-build-245
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
       - run: python runner_client.py fetch android
       - run: python runner_client.py phase android --name prepare
       - run: python runner_client.py phase android --name build
@@ -41,22 +51,3 @@ jobs:
       - run: python runner_client.py phase android --name stage
       - if: always()
         run: python runner_client.py phase android --name cleanup
-  windows:
-    if: github.actor == github.repository_owner
-    runs-on: windows-2025
-    timeout-minutes: 45
-    env:
-      BUILD_BROKER_URL: ${{ vars.BUILD_BROKER_URL }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - uses: dtolnay/rust-toolchain@stable
-      - run: python runner_client.py fetch windows
-      - run: python runner_client.py phase windows --name prepare
-      - run: python runner_client.py phase windows --name build
-      - run: python runner_client.py phase windows --name validate
-      - run: python runner_client.py phase windows --name stage
-      - if: always()
-        run: python runner_client.py phase windows --name cleanup
