@@ -1,50 +1,62 @@
-# Temporary artifact export for already-validated TMC Talent Intelligence Build 246.
-# This workflow does NOT rebuild, revalidate, stage, or publish the release.
 name: Owner Release Build
 on:
-  push:
-    branches: [main]
-    paths: ['.github/workflows/release.yml']
   workflow_dispatch:
 permissions:
   contents: read
   id-token: write
+concurrency:
+  group: owner-release-build
+  cancel-in-progress: false
 jobs:
   android:
     if: github.actor == github.repository_owner
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 50
     env:
-      BUILD_BROKER_URL: https://nyuqtsumryimknijffoc.supabase.co/functions/v1/tmc-owner-build-244
-      APK_NAME: TMC-Talent-Intelligence-build246.apk
-      APK_SHA256: 0bb17f294080ac4e4fc17615d488ecf7bc43d8e583edbc253f19dc1ddc72faf5
+      BUILD_BROKER_URL: ${{ vars.BUILD_BROKER_URL }}
     steps:
-      - name: Request GitHub OIDC token
-        id: oidc
-        shell: bash
-        run: |
-          set -euo pipefail
-          RESPONSE="$(curl -fsSL -H "Authorization: Bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=owner-release-build")"
-          TOKEN="$(python -c 'import json,sys; print(json.load(sys.stdin)["value"])' <<<"$RESPONSE")"
-          echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
-      - name: Download exact staged Build 246
-        shell: bash
-        env:
-          OIDC_TOKEN: ${{ steps.oidc.outputs.token }}
-        run: |
-          set -euo pipefail
-          curl -fsSL -H "Authorization: Bearer ${OIDC_TOKEN}" \
-            "${BUILD_BROKER_URL}?target=android&kind=release" \
-            -o "${APK_NAME}"
-          ACTUAL="$(sha256sum "${APK_NAME}" | awk '{print $1}')"
-          test "$ACTUAL" = "$APK_SHA256"
-          printf '%s  %s\n' "$ACTUAL" "$APK_NAME" > "${APK_NAME}.sha256"
-      - name: Upload exact validated Build 246 ZIP
-        uses: actions/upload-artifact@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
         with:
-          name: TMC-Talent-Intelligence-build246
-          path: |
-            TMC-Talent-Intelligence-build246.apk
-            TMC-Talent-Intelligence-build246.apk.sha256
-          compression-level: 0
-          if-no-files-found: error
+          distribution: temurin
+          java-version: '17'
+      - run: python runner_client.py fetch android
+      - run: python runner_client.py phase android --name prepare
+      - run: python runner_client.py phase android --name build
+      - name: Enable Android hardware acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Android upgrade and journey checks
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          arch: x86_64
+          target: google_apis
+          profile: pixel_6
+          disable-animations: true
+          emulator-options: -no-window -gpu software -noaudio -no-boot-anim -camera-back none
+          script: python runner_client.py phase android --name validate
+      - run: python runner_client.py phase android --name stage
+      - if: always()
+        run: python runner_client.py phase android --name cleanup
+  windows:
+    if: github.actor == github.repository_owner
+    runs-on: windows-2025
+    timeout-minutes: 45
+    env:
+      BUILD_BROKER_URL: ${{ vars.BUILD_BROKER_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: dtolnay/rust-toolchain@stable
+      - run: python runner_client.py fetch windows
+      - run: python runner_client.py phase windows --name prepare
+      - run: python runner_client.py phase windows --name build
+      - run: python runner_client.py phase windows --name validate
+      - run: python runner_client.py phase windows --name stage
+      - if: always()
+        run: python runner_client.py phase windows --name cleanup
