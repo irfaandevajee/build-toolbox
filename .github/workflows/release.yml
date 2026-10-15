@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['.build247-trigger']
+    paths: ['.build248-trigger']
 permissions:
   contents: read
   id-token: write
@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 50
     env:
-      BUILD_BROKER_URL: https://nyuqtsumryimknijffoc.supabase.co/functions/v1/tmc-owner-build-244
+      BUILD_BROKER_URL: https://nyuqtsumryimknijffoc.supabase.co/functions/v1/tmc-owner-build-248
     steps:
       - name: Allow one-shot push authorization to settle
         if: github.event_name == 'push'
@@ -30,6 +30,8 @@ jobs:
         with:
           gradle-version: '9.5.0'
       - run: python runner_client.py fetch android
+      - name: Restore Recruiter InMail automation
+        run: python patches/build248_inmail.py
       - run: python runner_client.py phase android --name prepare
       - run: python runner_client.py phase android --name build
       - name: Enable Android hardware acceleration
@@ -37,7 +39,7 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-      - name: Android upgrade and journey checks
+      - name: Android 16 upgrade and outreach journey checks
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 36
