@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['.build247-trigger']
+    paths: ['.build248-trigger']
 permissions:
   contents: read
   id-token: write
@@ -48,6 +48,22 @@ jobs:
           emulator-options: -no-window -gpu software -noaudio -no-boot-anim -camera-back none
           script: python runner_client.py phase android --name validate
       - run: python runner_client.py phase android --name stage
+      - name: Prepare exact validated APK delivery
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="$RUNNER_TEMP/TMC-Talent-Intelligence-build248.apk"
+          test -f "$APK"
+          sha256sum "$APK" > "$RUNNER_TEMP/TMC-Talent-Intelligence-build248.sha256.txt"
+      - name: Upload validated Build 248 APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: TMC-Talent-Intelligence-build248-validated
+          path: |
+            ${{ runner.temp }}/TMC-Talent-Intelligence-build248.apk
+            ${{ runner.temp }}/TMC-Talent-Intelligence-build248.sha256.txt
+          if-no-files-found: error
+          retention-days: 3
       - if: always()
         run: python runner_client.py phase android --name cleanup
   windows:
