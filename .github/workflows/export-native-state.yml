@@ -1,0 +1,48 @@
+name: Export Native State Source
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/export-native-state.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  export:
+    if: github.actor == github.repository_owner
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      BUILD_BROKER_URL: ${{ vars.BUILD_BROKER_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch authorized Android source bundle
+        run: python runner_client.py fetch android
+      - name: Extract only TMC native-state backend source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import shutil
+          roots=[]
+          for p in Path('private-input').rglob('index.ts'):
+              if p.parent.name == 'tmc-native-state':
+                  roots.append(p.parent)
+          if len(roots) != 1:
+              raise SystemExit(f'Expected exactly one tmc-native-state source directory, found {len(roots)}')
+          out=Path('native-state-export')
+          if out.exists(): shutil.rmtree(out)
+          shutil.copytree(roots[0], out/'tmc-native-state')
+          print('Native-state source isolated')
+          PY
+          tar -C native-state-export -czf tmc-native-state-source.tar.gz tmc-native-state
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tmc-native-state-source
+          path: tmc-native-state-source.tar.gz
+          if-no-files-found: error
+          retention-days: 1
