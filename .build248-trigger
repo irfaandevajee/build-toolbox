@@ -2,3 +2,4 @@ Build 248 private release build
 Source: Build 247 combined workstream + InMail automation repair
 Requested: 2026-10-15
 Retry: QA instrumentation updated for current Approve quick action
+Authorization: current retry commit approved before fetch
