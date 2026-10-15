@@ -5,3 +5,4 @@ Retry: QA instrumentation updated for current Approve quick action
 Authorization: current retry commit approved before fetch
 Retry 2: Candidate 360 Fit/scroll accessibility QA aligned to current UI
 Retry 3: Candidate 360 modal drag disabled to prevent fast-flick dismissal
+Retry 4: Setup QA aligned to current Recruiter UI; obsolete Najah copy removed
