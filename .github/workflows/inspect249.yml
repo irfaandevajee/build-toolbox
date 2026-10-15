@@ -1,0 +1,13 @@
+name: Inspect Private Mobile 249 Baselines
+on:
+  push:
+    branches: [main]
+    paths: ['.inspect249-trigger']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect private bundle capability flags only
+        run: curl -fsS 'https://nyuqtsumryimknijffoc.supabase.co/functions/v1/tmc-build180-init?token=mobile249-inspect-20261015'
