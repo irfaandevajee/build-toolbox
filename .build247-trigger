@@ -1,6 +1,6 @@
 TMC Talent Intelligence Build 247
-source=088f1c17c26f985f5b3310ab77587da2fa39c8e2
-ui=build235-exact
+source=1685a9267cda200450ceb844621a774d0ddc9d13
+ui=build235-exact-plus-notification
 marker=0.4.5-get-search
-attempt=7
+attempt=8
 upgradeBaseline=246
