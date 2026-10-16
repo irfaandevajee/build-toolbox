@@ -1,3 +1,3 @@
-mobile257 retention fix
-source 6aefb90d0fa3d7e9f0e833979c0c4f77fdb8b65a
-Retain profile reader and factory interface for the release instrumentation contract.
+mobile257 navigation readiness
+source cfba3cce1a541a66b369679c6fa78c4bc0f621a7
+Wait for profile navigation; retain identity and completeness checks.
