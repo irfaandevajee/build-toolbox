@@ -1,3 +1,3 @@
-mobile257 navigation readiness
-source cfba3cce1a541a66b369679c6fa78c4bc0f621a7
-Wait for profile navigation; retain identity and completeness checks.
+mobile258 background work and profile identity
+source ccf92945d308c54535142d8370316606624787e3
+Validate same-session profile reading while TMC is minimised and screen is off.
