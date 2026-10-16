@@ -1,5 +1,5 @@
 """Generic authenticated private-input transfer; never prints private payloads."""
-import argparse,base64,hashlib,json,os,pathlib,subprocess,sys,urllib.request,urllib.parse
+import time,urllib.error,argparse,base64,hashlib,json,os,pathlib,subprocess,sys,urllib.request,urllib.parse
 ROOT=pathlib.Path('private-input')
 AUDIENCE='owner-release-build'
 
@@ -17,8 +17,15 @@ def identity():
 
 def transfer(kind,target,payload=None):
     url=broker()+'?'+urllib.parse.urlencode({'kind':kind,'target':target})
-    req=urllib.request.Request(url,data=payload,headers={'Authorization':'Bearer '+identity(),'Content-Type':'application/octet-stream'},method='POST' if payload is not None else 'GET')
-    with urllib.request.urlopen(req,timeout=120) as response:return response.read()
+    for attempt in range(3):
+        req=urllib.request.Request(url,data=payload,headers={'Authorization':'Bearer '+identity(),'Content-Type':'application/octet-stream'},method='POST' if payload is not None else 'GET')
+        try:
+            with urllib.request.urlopen(req,timeout=120) as response:return response.read()
+        except (TimeoutError, urllib.error.URLError) as error:
+            code=getattr(error,'code',None)
+            if attempt==2 or (code is not None and code not in (408,429,500,502,503,504)):raise
+            print('Private transfer retry: '+kind+' attempt='+str(attempt+2)+' status='+str(code or 'transport'))
+            time.sleep(2*(attempt+1))
 
 def fetch(target):
     data=json.loads(transfer('bundle',target));ROOT.mkdir(exist_ok=True)
@@ -38,8 +45,8 @@ def phase(name,target):
     with log.open('wb') as stream:
         result=subprocess.run([sys.executable,'build/phases.py',name,target],cwd=ROOT,stdout=stream,stderr=subprocess.STDOUT,env=env)
     if result.returncode:
-        try:transfer('diagnostics',target,log.read_bytes())
-        except Exception:pass
+        try:transfer('diagnostics',target,log.read_bytes()[-1900000:])
+        except Exception as error:print('Private diagnostic upload failed: type='+type(error).__name__+' status='+str(getattr(error,'code','transport')))
         print('Build phase failed; diagnostics remain private: '+name)
         raise SystemExit(result.returncode)
     print('Build phase passed: '+name)
