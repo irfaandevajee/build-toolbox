@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Export exact verified Build 263
         env:
-          EXPORT_URL: https://nyuqtsumryimknijffoc.supabase.co/functions/v1/tmc-build180-material-proxy
+          EXPORT_URL: https://nyuqtsumryimknijffoc.supabase.co/functions/v1/tmc-build180-material-proxy?export=263
           EXPECTED_SHA: e9b45279eaf8ddc9eddbfe7a70babf8b0b44707e42671dd675c42a3d46aa0ac7
         run: |
           set -euo pipefail
