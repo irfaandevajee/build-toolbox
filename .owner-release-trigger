@@ -1,1 +1,1 @@
-Build262: reviewed Outlook submission and calendar drafts in the signed-in TMC phone session. Source 7189e65ecbb2cd3110d5cb6fbbcfe8f26730419b. Android16 update over261, structural and interaction checks, stage exact verified unpublished APK.
+Build263: TMC-only semantic Outlook control using the unified phone command path beside Recruiter. Source a2ed4e46be14ae29cfa2a6213dbbef7ebee1b3ac. Android16 update over exact verified Build262; semantic Outlook page read/type/press/click and Teams meeting compose QA; stage exact verified unpublished APK.
