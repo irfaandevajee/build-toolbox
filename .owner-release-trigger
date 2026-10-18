@@ -1,1 +1,2 @@
-Build269: use Outlook inbox Compose and Calendar New Event controls; replace stale version diagnostics; preserve existing signed-in data. Compile, lint, validate Android 16 and upgrade from exact Build268, then stage the exact validated APK unpublished.
+tmc-native-mobile-270
+source 4b50d0b60dbd2a27f9ac51804cb94059669c622f
