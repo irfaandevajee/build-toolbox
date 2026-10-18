@@ -1,1 +1,1 @@
-Build265: repair TMC background Outlook email automation using an atomic authenticated WebView workflow. Require recipient-chip confirmation and Sent Items evidence before reporting success; preserve background wake and existing login. Upgrade from exact verified Build264, validate Android 16 and stage unpublished.
+Build269: use Outlook inbox Compose and Calendar New Event controls; replace stale version diagnostics; preserve existing signed-in data. Compile, lint, validate Android 16 and upgrade from exact Build268, then stage the exact validated APK unpublished.
