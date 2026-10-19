@@ -1,3 +1,6 @@
-Owner release: Android Build 275 Outlook native Send correction
-Private source and signer fetched via owner-authenticated Supabase broker.
-Source fix PR irfaandevajee/tmc-talent-mobile#21; no public TMC source.
+Owner release: Android Build 275 — verified Outlook native Send + strict Sent Items proof
+Source fix: irfaandevajee/tmc-talent-mobile#23
+Outlook native controller Git blob: 7f089cdbfe4042429f8c547c6c0d0ab9c96742f2
+Native QA fixes Git commit: f4810cf806d020f1198ea75b393ca8678ed2c06b
+Private source and signer only through owner-authorized Supabase release broker.
+Stage the exact signed, Android 16 validated APK as unpublished before publishing.
